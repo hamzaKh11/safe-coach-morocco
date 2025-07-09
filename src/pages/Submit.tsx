@@ -475,7 +475,7 @@ export default function Submit() {
                   disabled={currentStep === 1}
                   className="w-full sm:w-auto"
                 >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  <ChevronRight className="w-4 h-4 ml-2" />
                   السابق
                 </Button>
 
@@ -496,7 +496,7 @@ export default function Submit() {
                     className="w-full sm:w-auto"
                   >
                     التالي
-                    <ChevronRight className="w-4 h-4 ml-2" />
+                    <ChevronLeft className="w-4 h-4 mr-2" />
                   </Button>
                 ) : (
                   <Button
