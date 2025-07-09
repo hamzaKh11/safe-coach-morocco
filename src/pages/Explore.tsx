@@ -112,10 +112,10 @@ export default function Explore() {
         <div className="bg-gradient-hero py-16">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl font-bold text-white mb-4">
-              Explore Reports
+              استكشاف التقارير
             </h1>
             <p className="text-xl text-white/90 max-w-2xl mx-auto">
-              Browse verified reports and reviews from the Moroccan digital coaching community
+              تصفح التقارير والمراجعات المعتمدة من مجتمع التدريب الرقمي المغربي
             </p>
           </div>
         </div>
@@ -128,7 +128,7 @@ export default function Explore() {
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by name, course, or Instagram handle..."
+                    placeholder="ابحث بالاسم أو الدورة أو حساب الإنستغرام..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="pl-10"
@@ -142,12 +142,12 @@ export default function Explore() {
                     <SelectValue placeholder="Rating" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Ratings</SelectItem>
-                    <SelectItem value="1">1 Star</SelectItem>
-                    <SelectItem value="2">2 Stars</SelectItem>
-                    <SelectItem value="3">3 Stars</SelectItem>
-                    <SelectItem value="4">4 Stars</SelectItem>
-                    <SelectItem value="5">5 Stars</SelectItem>
+                    <SelectItem value="all">جميع التقييمات</SelectItem>
+                    <SelectItem value="1">نجمة واحدة</SelectItem>
+                    <SelectItem value="2">نجمتان</SelectItem>
+                    <SelectItem value="3">3 نجوم</SelectItem>
+                    <SelectItem value="4">4 نجوم</SelectItem>
+                    <SelectItem value="5">5 نجوم</SelectItem>
                   </SelectContent>
                 </Select>
                 
@@ -156,12 +156,12 @@ export default function Explore() {
                     <SelectValue placeholder="Location" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Cities</SelectItem>
-                    <SelectItem value="Casablanca">Casablanca</SelectItem>
-                    <SelectItem value="Rabat">Rabat</SelectItem>
-                    <SelectItem value="Marrakech">Marrakech</SelectItem>
-                    <SelectItem value="Fez">Fez</SelectItem>
-                    <SelectItem value="Tangier">Tangier</SelectItem>
+                    <SelectItem value="all">جميع المدن</SelectItem>
+                    <SelectItem value="Casablanca">الدار البيضاء</SelectItem>
+                    <SelectItem value="Rabat">الرباط</SelectItem>
+                    <SelectItem value="Marrakech">مراكش</SelectItem>
+                    <SelectItem value="Fez">فاس</SelectItem>
+                    <SelectItem value="Tangier">طنجة</SelectItem>
                   </SelectContent>
                 </Select>
                 
@@ -170,9 +170,9 @@ export default function Explore() {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="verified">Verified</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="all">جميع الحالات</SelectItem>
+                    <SelectItem value="verified">معتمد</SelectItem>
+                    <SelectItem value="pending">قيد المراجعة</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -184,7 +184,7 @@ export default function Explore() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="mb-6">
             <p className="text-muted-foreground">
-              Showing {filteredReports.length} of {reports.length} reports
+              عرض {filteredReports.length} من {reports.length} تقرير
             </p>
           </div>
 
@@ -225,14 +225,14 @@ export default function Explore() {
                     <div className="bg-muted/50 rounded-lg p-3">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
                         <div>
-                          <span className="font-medium">Accused:</span> {report.accusedName}
+                          <span className="font-medium">المتهم:</span> {report.accusedName}
                         </div>
                         <div className="flex items-center gap-1">
                           <Instagram className="w-3 h-3" />
-                          <span className="font-medium">Instagram:</span> {report.instagramHandle}
+                          <span className="font-medium">إنستغرام:</span> {report.instagramHandle}
                         </div>
                         <div className="sm:col-span-2">
-                          <span className="font-medium">Course:</span> {report.courseName}
+                          <span className="font-medium">الدورة:</span> {report.courseName}
                         </div>
                       </div>
                     </div>
@@ -260,10 +260,10 @@ export default function Explore() {
                     <div className="flex items-center justify-between pt-2 border-t border-border">
                       <div className="flex items-center gap-1 text-sm text-muted-foreground">
                         <Eye className="w-3 h-3" />
-                        {report.views} views
+                        {report.views} مشاهدة
                       </div>
                       <Button variant="ghost" size="sm">
-                        Read Full Report
+                        اقرأ التقرير كاملاً
                       </Button>
                     </div>
                   </div>
@@ -276,10 +276,10 @@ export default function Explore() {
             <div className="text-center py-12">
               <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                No reports found
+                لم يتم العثور على تقارير
               </h3>
               <p className="text-muted-foreground">
-                Try adjusting your filters or search terms
+                جرب تعديل المرشحات أو مصطلحات البحث
               </p>
             </div>
           )}

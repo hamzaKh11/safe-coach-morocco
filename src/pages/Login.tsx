@@ -19,8 +19,8 @@ export default function Login() {
     // Simulate API call
     setTimeout(() => {
       toast({
-        title: "Supabase Integration Required",
-        description: "Please connect to Supabase to enable authentication functionality.",
+        title: "يتطلب ربط Supabase",
+        description: "يرجى الاتصال بـ Supabase لتمكين وظائف المصادقة.",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -37,22 +37,22 @@ export default function Login() {
             <div className="w-10 h-10 bg-gradient-hero rounded-lg flex items-center justify-center">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold">Safe Coach Morocco</span>
+            <span className="text-xl font-bold">ثيكا</span>
           </div>
-          <CardTitle className="text-2xl">Welcome Back</CardTitle>
-          <CardDescription>Sign in to your account to continue</CardDescription>
+          <CardTitle className="text-2xl">مرحباً بعودتك</CardTitle>
+          <CardDescription>سجل الدخول إلى حسابك للمتابعة</CardDescription>
         </CardHeader>
         
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">البريد الإلكتروني</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="أدخل بريدك الإلكتروني"
                   className="pl-10"
                   required
                 />
@@ -60,13 +60,13 @@ export default function Login() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">كلمة المرور</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your password"
+                  placeholder="أدخل كلمة المرور"
                   className="pl-10 pr-10"
                   required
                 />
@@ -81,19 +81,19 @@ export default function Login() {
             </div>
             
             <Button type="submit" className="w-full" variant="hero" disabled={isLoading}>
-              {isLoading ? "Signing in..." : "Sign In"}
+              {isLoading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
             </Button>
           </form>
           
           <div className="mt-6 text-center">
             <Link to="/signup" className="text-sm text-primary hover:underline">
-              Don't have an account? Sign up
+              ليس لديك حساب؟ سجل الآن
             </Link>
           </div>
           
           <div className="mt-4 text-center">
             <Link to="/forgot-password" className="text-sm text-muted-foreground hover:text-foreground">
-              Forgot your password?
+              نسيت كلمة المرور؟
             </Link>
           </div>
         </CardContent>

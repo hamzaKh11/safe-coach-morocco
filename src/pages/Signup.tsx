@@ -20,8 +20,8 @@ export default function Signup() {
     
     if (!agreedToTerms) {
       toast({
-        title: "Terms Required",
-        description: "Please accept the terms and conditions to continue.",
+        title: "الشروط مطلوبة",
+        description: "يرجى قبول الشروط والأحكام للمتابعة.",
         variant: "destructive",
       });
       return;
@@ -32,8 +32,8 @@ export default function Signup() {
     // Simulate API call
     setTimeout(() => {
       toast({
-        title: "Supabase Integration Required",
-        description: "Please connect to Supabase to enable authentication functionality.",
+        title: "يتطلب ربط Supabase",
+        description: "يرجى الاتصال بـ Supabase لتمكين وظائف المصادقة.",
         variant: "destructive",
       });
       setIsLoading(false);
@@ -50,22 +50,22 @@ export default function Signup() {
             <div className="w-10 h-10 bg-gradient-hero rounded-lg flex items-center justify-center">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold">Safe Coach Morocco</span>
+            <span className="text-xl font-bold">ثيكا</span>
           </div>
-          <CardTitle className="text-2xl">Join the Fight</CardTitle>
-          <CardDescription>Create your account to start reporting scams</CardDescription>
+          <CardTitle className="text-2xl">انضم إلى المعركة</CardTitle>
+          <CardDescription>أنشئ حسابك لبدء الإبلاغ عن عمليات الاحتيال</CardDescription>
         </CardHeader>
         
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Full Name</Label>
+              <Label htmlFor="name">الاسم الكامل</Label>
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Enter your full name"
+                  placeholder="أدخل اسمك الكامل"
                   className="pl-10"
                   required
                 />
@@ -73,13 +73,13 @@ export default function Signup() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">البريد الإلكتروني</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="أدخل بريدك الإلكتروني"
                   className="pl-10"
                   required
                 />
@@ -87,13 +87,13 @@ export default function Signup() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">كلمة المرور</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Create a strong password"
+                  placeholder="أنشئ كلمة مرور قوية"
                   className="pl-10 pr-10"
                   required
                 />
@@ -108,13 +108,13 @@ export default function Signup() {
             </div>
             
             <div className="space-y-2">
-              <Label htmlFor="confirmPassword">Confirm Password</Label>
+              <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="confirmPassword"
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your password"
+                  placeholder="أكد كلمة المرور"
                   className="pl-10 pr-10"
                   required
                 />
@@ -135,25 +135,25 @@ export default function Signup() {
                 onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
               />
               <Label htmlFor="terms" className="text-sm">
-                I agree to the{' '}
+                أوافق على{' '}
                 <Link to="/terms" className="text-primary hover:underline">
-                  Terms of Service
+                  شروط الخدمة
                 </Link>
-                {' '}and{' '}
+                {' '}و{' '}
                 <Link to="/privacy" className="text-primary hover:underline">
-                  Privacy Policy
+                  سياسة الخصوصية
                 </Link>
               </Label>
             </div>
             
             <Button type="submit" className="w-full" variant="hero" disabled={isLoading || !agreedToTerms}>
-              {isLoading ? "Creating Account..." : "Create Account"}
+              {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
             </Button>
           </form>
           
           <div className="mt-6 text-center">
             <Link to="/login" className="text-sm text-primary hover:underline">
-              Already have an account? Sign in
+              لديك حساب بالفعل؟ سجل الدخول
             </Link>
           </div>
         </CardContent>
