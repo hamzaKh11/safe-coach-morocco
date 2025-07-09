@@ -3,7 +3,13 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Shield, Eye, EyeOff, Mail, Lock, User } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -17,7 +23,7 @@ export default function Signup() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!agreedToTerms) {
       toast({
         title: "الشروط مطلوبة",
@@ -26,9 +32,9 @@ export default function Signup() {
       });
       return;
     }
-    
+
     setIsLoading(true);
-    
+
     // Simulate API call
     setTimeout(() => {
       toast({
@@ -43,19 +49,21 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-gradient-hero flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-accent/20"></div>
-      
+
       <Card className="w-full max-w-md glass-card border-0 animate-fade-in-up">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <div className="w-10 h-10 bg-gradient-hero rounded-lg flex items-center justify-center">
               <Shield className="w-6 h-6 text-white" />
             </div>
-            <span className="text-xl font-bold">ثيكا</span>
+            <span className="text-xl font-bold">الثقة</span>
           </div>
           <CardTitle className="text-2xl">انضم إلى المعركة</CardTitle>
-          <CardDescription>أنشئ حسابك لبدء الإبلاغ عن عمليات الاحتيال</CardDescription>
+          <CardDescription>
+            أنشئ حسابك لبدء الإبلاغ عن عمليات الاحتيال
+          </CardDescription>
         </CardHeader>
-        
+
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
@@ -71,7 +79,7 @@ export default function Signup() {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="email">البريد الإلكتروني</Label>
               <div className="relative">
@@ -85,7 +93,7 @@ export default function Signup() {
                 />
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="password">كلمة المرور</Label>
               <div className="relative">
@@ -102,11 +110,15 @@ export default function Signup() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">تأكيد كلمة المرور</Label>
               <div className="relative">
@@ -123,34 +135,45 @@ export default function Signup() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-4 h-4" />
+                  ) : (
+                    <Eye className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-2">
-              <Checkbox 
-                id="terms" 
+              <Checkbox
+                id="terms"
                 checked={agreedToTerms}
-                onCheckedChange={(checked) => setAgreedToTerms(checked === true)}
+                onCheckedChange={(checked) =>
+                  setAgreedToTerms(checked === true)
+                }
               />
               <Label htmlFor="terms" className="text-sm">
-                أوافق على{' '}
+                أوافق على{" "}
                 <Link to="/terms" className="text-primary hover:underline">
                   شروط الخدمة
-                </Link>
-                {' '}و{' '}
+                </Link>{" "}
+                و{" "}
                 <Link to="/privacy" className="text-primary hover:underline">
                   سياسة الخصوصية
                 </Link>
               </Label>
             </div>
-            
-            <Button type="submit" className="w-full" variant="hero" disabled={isLoading || !agreedToTerms}>
+
+            <Button
+              type="submit"
+              className="w-full"
+              variant="hero"
+              disabled={isLoading || !agreedToTerms}
+            >
               {isLoading ? "جاري إنشاء الحساب..." : "إنشاء حساب"}
             </Button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <Link to="/login" className="text-sm text-primary hover:underline">
               لديك حساب بالفعل؟ سجل الدخول

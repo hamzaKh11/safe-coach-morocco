@@ -8,17 +8,22 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Logo & Description */}
           <div className="col-span-1 md:col-span-2">
-            <Link to="/" className="flex items-center gap-2 text-xl font-bold text-primary mb-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 text-xl font-bold text-primary mb-4"
+            >
               <div className="w-8 h-8 bg-gradient-hero rounded-lg flex items-center justify-center">
                 <Shield className="w-5 h-5 text-white" />
               </div>
-              ثيكا
+              الثقة
             </Link>
             <p className="text-muted-foreground mb-4 max-w-md">
-              منصة مجتمعية مخصصة لحماية المستهلكين المغاربة من عمليات الاحتيال الرقمي والمدربين المزيفين والدورات الإلكترونية الوهمية.
+              منصة مجتمعية مخصصة لحماية المستهلكين المغاربة من عمليات الاحتيال
+              الرقمي والمدربين المزيفين والدورات الإلكترونية الوهمية.
             </p>
             <div className="flex items-center gap-1 text-sm text-muted-foreground">
-              صُنع بـ <Heart className="w-4 h-4 text-red-500 fill-current" /> من أجل المغرب
+              صُنع بـ <Heart className="w-4 h-4 text-red-500 fill-current" /> من
+              أجل المغرب
             </div>
           </div>
 
@@ -26,13 +31,22 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-foreground mb-4">المنصة</h3>
             <div className="flex flex-col gap-2">
-              <Link to="/explore" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                to="/explore"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 تصفح التقارير
               </Link>
-              <Link to="/submit" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                to="/submit"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 إبلاغ عن احتيال
               </Link>
-              <Link to="/admin" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                to="/admin"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 لوحة الإدارة
               </Link>
             </div>
@@ -42,17 +56,26 @@ export default function Footer() {
           <div>
             <h3 className="font-semibold text-foreground mb-4">قانوني</h3>
             <div className="flex flex-col gap-2">
-              <Link to="/privacy" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                to="/privacy"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 سياسة الخصوصية
               </Link>
-              <Link to="/terms" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                to="/terms"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 شروط الخدمة
               </Link>
-              <Link to="/guidelines" className="text-muted-foreground hover:text-primary transition-colors">
+              <Link
+                to="/guidelines"
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
                 إرشادات المجتمع
               </Link>
-              <a 
-                href="mailto:contact@thika.com" 
+              <a
+                href="mailto:contact@thika.com"
                 className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1"
               >
                 اتصل بنا
