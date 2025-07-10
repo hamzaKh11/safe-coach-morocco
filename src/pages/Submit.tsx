@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import StarRating from "@/components/StarRating";
@@ -30,6 +31,8 @@ import {
   Send,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/lib/supabase";
 
 const steps = [
   { id: 1, title: "المعلومات الشخصية", icon: User },
@@ -40,6 +43,7 @@ const steps = [
 
 export default function Submit() {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     // Step 1 - Personal Info
     fullName: "",
@@ -51,6 +55,8 @@ export default function Submit() {
     instagramHandle: "",
     courseName: "",
     description: "",
+    category: "احتيال مالي",
+    price: "",
 
     // Step 3 - Rating & Proof
     rating: 0,
@@ -61,6 +67,29 @@ export default function Submit() {
   });
 
   const { toast } = useToast();
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      toast({
+        title: "يتطلب تسجيل الدخول",
+        description: "يرجى تسجيل الدخول أولاً لتتمكن من إرسال التقارير",
+        variant: "destructive",
+      });
+      navigate('/login');
+    }
+  }, [user, loading, navigate, toast]);
+
+  useEffect(() => {
+    if (user) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: user.user_metadata?.full_name || "",
+        email: user.email || "",
+      }));
+    }
+  }, [user]);
 
   const handleInputChange = (field: string, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -97,12 +126,88 @@ export default function Submit() {
     }
   };
 
-  const handleSubmit = () => {
-    toast({
-      title: "يتطلب ربط Supabase",
-      description: "يرجى الاتصال بـ Supabase لتمكين وظيفة إرسال التقارير.",
-      variant: "destructive",
-    });
+  const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "خطأ في المصادقة",
+        description: "يرجى تسجيل الدخول أولاً",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Upload proof files to Supabase Storage
+      const uploadedFiles = [];
+      for (const file of formData.proofFiles) {
+        const fileName = `${Date.now()}-${file.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('proof-files')
+          .upload(fileName, file);
+
+        if (uploadError) throw uploadError;
+        uploadedFiles.push({
+          file_name: file.name,
+          file_url: uploadData.path,
+          file_type: file.type,
+          file_size: file.size,
+        });
+      }
+
+      // Insert report data
+      const { data: reportData, error: reportError } = await supabase
+        .from('reports')
+        .insert({
+          user_id: user.id,
+          full_name: formData.fullName,
+          email: formData.email,
+          phone: formData.phone || null,
+          instagram_handle: formData.instagramHandle,
+          accused_name: formData.accusedName,
+          course_name: formData.courseName,
+          description: formData.description,
+          rating: formData.rating,
+          price: formData.price ? parseFloat(formData.price) : null,
+          category: formData.category,
+          status: 'pending',
+        })
+        .select()
+        .single();
+
+      if (reportError) throw reportError;
+
+      // Insert proof files
+      if (uploadedFiles.length > 0) {
+        const { error: filesError } = await supabase
+          .from('proof_files')
+          .insert(
+            uploadedFiles.map(file => ({
+              report_id: reportData.id,
+              ...file,
+            }))
+          );
+
+        if (filesError) throw filesError;
+      }
+
+      toast({
+        title: "تم إرسال التقرير بنجاح",
+        description: "شكراً لك على مساعدة المجتمع. سيتم مراجعة تقريرك قريباً.",
+      });
+
+      navigate('/explore');
+    } catch (error) {
+      console.error('Error submitting report:', error);
+      toast({
+        title: "خطأ في الإرسال",
+        description: "حدث خطأ أثناء إرسال التقرير. يرجى المحاولة مرة أخرى.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const renderStep = () => {
@@ -117,6 +222,7 @@ export default function Submit() {
                 value={formData.fullName}
                 onChange={(e) => handleInputChange("fullName", e.target.value)}
                 placeholder="أدخل اسمك الكامل"
+                disabled={!!user?.user_metadata?.full_name}
                 required
               />
             </div>
@@ -129,6 +235,7 @@ export default function Submit() {
                 value={formData.email}
                 onChange={(e) => handleInputChange("email", e.target.value)}
                 placeholder="أدخل عنوان بريدك الإلكتروني"
+                disabled={!!user?.email}
                 required
               />
             </div>
@@ -218,6 +325,38 @@ export default function Submit() {
               <p className="text-xs text-muted-foreground">
                 كن محدداً وواقعياً. هذا يساعد الآخرين على فهم تجربتك.
               </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="category">نوع المشكلة *</Label>
+                <select
+                  id="category"
+                  value={formData.category}
+                  onChange={(e) => handleInputChange("category", e.target.value)}
+                  className="w-full px-4 py-3 rounded-lg border border-input bg-background focus:outline-none focus:ring-2 focus:ring-ring"
+                  required
+                >
+                  <option value="احتيال مالي">احتيال مالي</option>
+                  <option value="محتوى مزيف">محتوى مزيف</option>
+                  <option value="عدم استرداد الأموال">عدم استرداد الأموال</option>
+                  <option value="اختفاء المدرب">اختفاء المدرب</option>
+                  <option value="دورة غير مكتملة">دورة غير مكتملة</option>
+                  <option value="أخرى">أخرى</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="price">المبلغ المدفوع (درهم)</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => handleInputChange("price", e.target.value)}
+                  placeholder="المبلغ بالدرهم (اختياري)"
+                  min="0"
+                />
+              </div>
             </div>
           </div>
         );

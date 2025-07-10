@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ReportCard, ReportCardSkeleton } from "@/components/ReportCard";
@@ -24,12 +24,10 @@ import {
   Filter,
   AlertTriangle,
   X,
-  ListOrdered,
-  BookCopy,
-  BadgeCent,
-  AppWindow,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Explore() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -41,9 +39,12 @@ export default function Explore() {
     platform: "all",
   });
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  // Sample data - in real app, this would come from Supabase
-  const reports = [
+  // Sample data for demo purposes - replace with actual Supabase data
+  const sampleReports = [
     {
       id: 1,
       title: "دورة تسويق رقمي مزيفة - عملية نصب كاملة",
@@ -118,6 +119,56 @@ export default function Explore() {
     },
   ];
 
+  useEffect(() => {
+    const fetchReports = async () => {
+      try {
+        // Try to fetch from Supabase
+        const { data, error } = await supabase
+          .from('reports')
+          .select(`
+            *,
+            profiles (
+              full_name
+            )
+          `)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false });
+
+        if (error) {
+          console.log('Supabase not connected, using sample data');
+          setReports(sampleReports);
+        } else {
+          // Transform Supabase data to match expected format
+          const transformedData = data.map(report => ({
+            id: report.id,
+            title: `${report.course_name} - ${report.category}`,
+            author: report.profiles?.full_name?.split(' ')[0] + ' ' + (report.profiles?.full_name?.split(' ')[1]?.[0] || '') + '.',
+            rating: report.rating,
+            date: report.created_at,
+            instagramHandle: report.instagram_handle,
+            accusedName: report.accused_name,
+            courseName: report.course_name,
+            excerpt: report.description.substring(0, 150) + '...',
+            status: "verified",
+            views: Math.floor(Math.random() * 500) + 50,
+            tags: [report.category],
+            category: report.category,
+            price: report.price || 0,
+            platform: "Instagram",
+          }));
+          setReports(transformedData.length > 0 ? transformedData : sampleReports);
+        }
+      } catch (error) {
+        console.log('Error fetching reports, using sample data:', error);
+        setReports(sampleReports);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReports();
+  }, []);
+
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({ ...prev, [filterName]: value }));
   };
@@ -191,21 +242,21 @@ export default function Explore() {
 
       <div className="pt-16">
         {/* Header */}
-        <div className="bg-gradient-hero py-16">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-4xl font-bold text-white mb-4">
+        <div className="bg-gradient-hero py-12 sm:py-16">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-4">
               استكشاف التقارير
             </h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg lg:text-xl text-white/90 max-w-2xl mx-auto">
               تصفح التقارير والمراجعات المعتمدة من مجتمع التدريب الرقمي المغربي
             </p>
           </div>
         </div>
 
         {/* Filters and Search */}
-        <div className="sticky top-16 z-30 border-b border-border bg-background/80 backdrop-blur-md">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex flex-col md:flex-row gap-4">
+        <div className="sticky top-16 z-30 border-b border-border bg-background/95 backdrop-blur-lg">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
               <div className="flex-1">
                 <div className="relative">
                   <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -213,23 +264,24 @@ export default function Explore() {
                     placeholder="ابحث بالاسم، الدورة، أو حساب إنستغرام..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pr-10 h-12"
+                    className="pr-10 h-10 sm:h-12"
                   />
                 </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <div className="md:hidden flex-1">
+                {/* Mobile Filters */}
+                <div className="sm:hidden flex-1">
                   <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                     <SheetTrigger asChild>
                       <Button
                         variant="outline"
-                        className="w-full justify-center h-12"
+                        className="w-full justify-center h-10 sm:h-12"
                       >
                         <Filter className="w-4 h-4 ml-2" />
                         الفلاتر
                         {activeFilterCount > 0 && (
-                          <Badge className="mr-2">{activeFilterCount}</Badge>
+                          <Badge className="mr-2 text-xs">{activeFilterCount}</Badge>
                         )}
                       </Button>
                     </SheetTrigger>
@@ -241,7 +293,6 @@ export default function Explore() {
                         </SheetDescription>
                       </SheetHeader>
                       <div className="py-4 space-y-4">
-                        {/* Mobile Filters */}
                         <div className="space-y-2">
                           <label className="text-sm font-medium">التقييم</label>
                           <Select
@@ -263,7 +314,27 @@ export default function Explore() {
                             </SelectContent>
                           </Select>
                         </div>
-                        {/* More mobile filters here */}
+
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">السعر</label>
+                          <Select
+                            value={filters.price}
+                            onValueChange={(val) =>
+                              handleFilterChange("price", val)
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="نطاق السعر" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="all">كل الأسعار</SelectItem>
+                              <SelectItem value="0-500">0-500 درهم</SelectItem>
+                              <SelectItem value="500-1500">500-1500 درهم</SelectItem>
+                              <SelectItem value="1500-3000">1500-3000 درهم</SelectItem>
+                              <SelectItem value="3000+">3000+ درهم</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                       <Button
                         onClick={clearFilters}
@@ -276,12 +347,13 @@ export default function Explore() {
                   </Sheet>
                 </div>
 
-                <div className="hidden md:flex gap-2">
+                {/* Desktop Filters */}
+                <div className="hidden sm:flex gap-2">
                   <Select
                     value={filters.rating}
                     onValueChange={(val) => handleFilterChange("rating", val)}
                   >
-                    <SelectTrigger className="w-36 h-12">
+                    <SelectTrigger className="w-32 lg:w-36 h-10 sm:h-12">
                       <SelectValue placeholder="التقييم" />
                     </SelectTrigger>
                     <SelectContent>
@@ -293,22 +365,33 @@ export default function Explore() {
                       ))}
                     </SelectContent>
                   </Select>
-                  {/* ... other desktop filters ... */}
+
+                  <Select
+                    value={filters.price}
+                    onValueChange={(val) => handleFilterChange("price", val)}
+                  >
+                    <SelectTrigger className="w-32 lg:w-36 h-10 sm:h-12">
+                      <SelectValue placeholder="السعر" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">كل الأسعار</SelectItem>
+                      <SelectItem value="0-500">0-500 درهم</SelectItem>
+                      <SelectItem value="500-1500">500-1500 درهم</SelectItem>
+                      <SelectItem value="1500-3000">1500-3000 درهم</SelectItem>
+                      <SelectItem value="3000+">3000+ درهم</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
                 <Select value={sortOrder} onValueChange={setSortOrder}>
-                  <SelectTrigger className="w-40 h-12">
-                    <SelectValue placeholder="الترتيب حسب" />
+                  <SelectTrigger className="w-32 lg:w-40 h-10 sm:h-12">
+                    <SelectValue placeholder="الترتيب" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="newest">الأحدث</SelectItem>
                     <SelectItem value="oldest">الأقدم</SelectItem>
-                    <SelectItem value="rating_asc">
-                      التقييم (من الأقل للأعلى)
-                    </SelectItem>
-                    <SelectItem value="rating_desc">
-                      التقييم (من الأعلى للأقل)
-                    </SelectItem>
+                    <SelectItem value="rating_asc">تقييم منخفض</SelectItem>
+                    <SelectItem value="rating_desc">تقييم عالي</SelectItem>
                     <SelectItem value="views">الأكثر مشاهدة</SelectItem>
                   </SelectContent>
                 </Select>
@@ -316,9 +399,9 @@ export default function Explore() {
                 <Button
                   onClick={clearFilters}
                   variant="ghost"
-                  className="h-12 hidden md:inline-flex"
+                  className="h-10 sm:h-12 hidden sm:inline-flex px-3"
                 >
-                  <X className="w-4 h-4 ml-2" />
+                  <X className="w-4 h-4 ml-1" />
                   مسح
                 </Button>
               </div>
@@ -327,30 +410,38 @@ export default function Explore() {
         </div>
 
         {/* Results */}
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-6">
-            <p className="text-muted-foreground">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+          <div className="mb-4 sm:mb-6">
+            <p className="text-sm sm:text-base text-muted-foreground">
               عرض {filteredReports.length} من {reports.length} تقرير
             </p>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-            {filteredReports.length > 0 ? (
-              filteredReports.map((report) => (
-                <ReportCard key={report.id} report={report} />
-              ))
-            ) : (
-              <div className="text-center py-12 xl:col-span-2">
-                <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-foreground mb-2">
-                  لم يتم العثور على تقارير
-                </h3>
-                <p className="text-muted-foreground">
-                  جرّب تعديل الفلاتر أو مصطلحات البحث.
-                </p>
-              </div>
-            )}
-          </div>
+          {loading ? (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <ReportCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
+              {filteredReports.length > 0 ? (
+                filteredReports.map((report) => (
+                  <ReportCard key={report.id} report={report} />
+                ))
+              ) : (
+                <div className="text-center py-12 xl:col-span-2">
+                  <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-foreground mb-2">
+                    لم يتم العثور على تقارير
+                  </h3>
+                  <p className="text-muted-foreground">
+                    جرّب تعديل الفلاتر أو مصطلحات البحث.
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
