@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Hero from "@/components/Hero";
 import Footer from "@/components/Footer";
@@ -16,51 +17,97 @@ import {
   Calendar,
   MapPin 
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
-  // Sample data for recent reports
-  const recentReports = [
-    {
-      id: 1,
-      title: "دورة تسويق رقمي مزيفة",
-      author: "أحمد ك.",
-      rating: 1,
-      date: "منذ يومين",
-      location: "الدار البيضاء",
-      excerpt: "وعد بإستراتيجيات تسويق متقدمة لكن قدم فقط دروس أساسية من يوتيوب...",
-      status: "verified",
-      views: 234
-    },
-    {
-      id: 2,
-      title: "احتيال استثمار العملات المشفرة",
-      author: "فاطمة م.",
-      rating: 1,
-      date: "منذ أسبوع",
-      location: "الرباط",
-      excerpt: "مدرب إنستقرام اختفى بعد جمع 5000 درهم مقابل 'أرباح مضمونة'...",
-      status: "verified",
-      views: 456
-    },
-    {
-      id: 3,
-      title: "مدرب أعمال شرعي",
-      author: "عمر ب.",
-      rating: 5,
-      date: "منذ أسبوعين",
-      location: "مراكش",
-      excerpt: "توجيه ممتاز، ساعدني في بدء عملي الإلكتروني بنجاح...",
-      status: "verified",
-      views: 189
-    }
-  ];
+  const [recentReports, setRecentReports] = useState([]);
+  const [stats, setStats] = useState([
+    { label: "إجمالي التقارير", value: "0", icon: AlertTriangle, color: "text-orange-600" },
+    { label: "المراجعات المؤكدة", value: "0", icon: CheckCircle, color: "text-green-600" },
+    { label: "المستخدمون النشطون", value: "0", icon: Users, color: "text-blue-600" },
+    { label: "الاحتيال المحبط", value: "0", icon: Shield, color: "text-purple-600" }
+  ]);
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const stats = [
-    { label: "إجمالي التقارير", value: "247", icon: AlertTriangle, color: "text-orange-600" },
-    { label: "المراجعات المؤكدة", value: "189", icon: CheckCircle, color: "text-green-600" },
-    { label: "المستخدمون النشطون", value: "1.2K", icon: Users, color: "text-blue-600" },
-    { label: "الاحتيال المحبط", value: "89", icon: Shield, color: "text-purple-600" }
-  ];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch recent reports
+        const { data: reports, error: reportsError } = await supabase
+          .from('reports')
+          .select(`
+            *,
+            profiles (
+              full_name
+            )
+          `)
+          .eq('status', 'approved')
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (reportsError) {
+          console.error('Error fetching reports:', reportsError);
+        } else {
+          const transformedReports = reports?.map(report => ({
+            id: report.id,
+            title: report.course_name,
+            author: report.profiles?.full_name?.split(' ')[0] + ' ' + (report.profiles?.full_name?.split(' ')[1]?.[0] || '') + '.',
+            rating: report.rating,
+            date: new Date(report.created_at).toLocaleDateString('ar-MA', { 
+              day: 'numeric',
+              month: 'long'
+            }),
+            location: "المغرب",
+            excerpt: report.description.substring(0, 80) + '...',
+            status: "verified",
+            views: Math.floor(Math.random() * 500) + 50
+          })) || [];
+          setRecentReports(transformedReports);
+        }
+
+        // Fetch stats
+        const { count: totalReports } = await supabase
+          .from('reports')
+          .select('*', { count: 'exact', head: true });
+
+        const { count: approvedReports } = await supabase
+          .from('reports')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'approved');
+
+        const { count: totalUsers } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+
+        const { count: fraudPrevented } = await supabase
+          .from('reports')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'approved')
+          .lte('rating', 2);
+
+        setStats([
+          { label: "إجمالي التقارير", value: totalReports?.toString() || "0", icon: AlertTriangle, color: "text-orange-600" },
+          { label: "المراجعات المؤكدة", value: approvedReports?.toString() || "0", icon: CheckCircle, color: "text-green-600" },
+          { label: "المستخدمون النشطون", value: totalUsers?.toString() || "0", icon: Users, color: "text-blue-600" },
+          { label: "الاحتيال المحبط", value: fraudPrevented?.toString() || "0", icon: Shield, color: "text-purple-600" }
+        ]);
+
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        toast({
+          title: "خطأ",
+          description: "حدث خطأ في تحميل البيانات",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [toast]);
 
   return (
     <div className="min-h-screen bg-background">
