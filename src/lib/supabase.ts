@@ -8,9 +8,9 @@ export const supabase = createClient(supabaseUrl, supabaseKey)
 // Database Types
 export interface Profile {
   id: string
-  email: string
   full_name: string
   phone?: string
+  role: 'user' | 'admin'
   created_at: string
   updated_at: string
 }
@@ -18,17 +18,14 @@ export interface Profile {
 export interface Report {
   id: string
   user_id: string
-  full_name: string
-  email: string
-  phone?: string
-  instagram_handle: string
   accused_name: string
+  instagram_handle: string
   course_name: string
   description: string
   rating: number
-  price?: number
-  category: string
   status: 'pending' | 'approved' | 'rejected'
+  is_anonymous: boolean
+  views: number
   created_at: string
   updated_at: string
   profiles?: Profile
@@ -37,9 +34,17 @@ export interface Report {
 export interface ProofFile {
   id: string
   report_id: string
-  file_url: string
   file_name: string
-  file_type: string
+  file_path: string
   file_size: number
+  mime_type: string
+  created_at: string
+}
+
+export interface AdminNote {
+  id: string
+  report_id: string
+  admin_id: string
+  note: string
   created_at: string
 }

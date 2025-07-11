@@ -53,7 +53,7 @@ const Index = () => {
           const transformedReports = reports?.map(report => ({
             id: report.id,
             title: report.course_name,
-            author: report.profiles?.full_name?.split(' ')[0] + ' ' + (report.profiles?.full_name?.split(' ')[1]?.[0] || '') + '.',
+            author: report.is_anonymous ? "مجهول" : (report.profiles?.full_name?.split(' ')[0] + ' ' + (report.profiles?.full_name?.split(' ')[1]?.[0] || '') + '.'),
             rating: report.rating,
             date: new Date(report.created_at).toLocaleDateString('ar-MA', { 
               day: 'numeric',
@@ -62,7 +62,7 @@ const Index = () => {
             location: "المغرب",
             excerpt: report.description.substring(0, 80) + '...',
             status: "verified",
-            views: Math.floor(Math.random() * 500) + 50
+            views: report.views
           })) || [];
           setRecentReports(transformedReports);
         }
