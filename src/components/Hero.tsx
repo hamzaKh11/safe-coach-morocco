@@ -1,7 +1,51 @@
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Shield, Users, AlertTriangle, Star, CheckCircle } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 export default function Hero() {
+  const [stats, setStats] = useState({
+    totalReports: "0",
+    solvedPercentage: "0",
+    protectedUsers: "0"
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        // Fetch total reports
+        const { count: totalReports } = await supabase
+          .from('reports')
+          .select('*', { count: 'exact', head: true });
+
+        // Fetch approved reports
+        const { count: approvedReports } = await supabase
+          .from('reports')
+          .select('*', { count: 'exact', head: true })
+          .eq('status', 'approved');
+
+        // Fetch total users (protected users)
+        const { count: totalUsers } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
+
+        // Calculate solved percentage
+        const solvedPercentage = totalReports > 0 
+          ? Math.round((approvedReports / totalReports) * 100)
+          : 0;
+
+        setStats({
+          totalReports: totalReports > 999 ? `${Math.round(totalReports/1000)}k+` : `${totalReports}+`,
+          solvedPercentage: `${solvedPercentage}%`,
+          protectedUsers: totalUsers > 999 ? `${Math.round(totalUsers/1000)}k+` : `${totalUsers}+`
+        });
+      } catch (error) {
+        console.error('Error fetching hero stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
   return (
     <div className="relative overflow-hidden">
       {/* Background gradient */}
@@ -52,15 +96,15 @@ export default function Hero() {
           {/* Stats */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-8 max-w-4xl mx-auto">
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">250+</div>
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">{stats.totalReports}</div>
               <div className="text-sm sm:text-base text-white/80">تقرير مُقدم</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">89%</div>
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">{stats.solvedPercentage}</div>
               <div className="text-sm sm:text-base text-white/80">قضية محلولة</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">5k+</div>
+              <div className="text-2xl sm:text-3xl lg:text-4xl font-bold text-white mb-2">{stats.protectedUsers}</div>
               <div className="text-sm sm:text-base text-white/80">مستخدم محمي</div>
             </div>
           </div>
