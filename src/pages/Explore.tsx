@@ -20,10 +20,21 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Search,
   Filter,
   AlertTriangle,
   X,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/lib/supabase";
@@ -41,6 +52,9 @@ export default function Explore() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalReports, setTotalReports] = useState(0);
+  const reportsPerPage = 12;
   const { toast } = useToast();
 
   // Sample data for demo purposes - replace with actual Supabase data
@@ -120,54 +134,70 @@ export default function Explore() {
   ];
 
   useEffect(() => {
-    const fetchReports = async () => {
-      try {
-        // Try to fetch from Supabase
-        const { data, error } = await supabase
-          .from('reports')
-          .select(`
-            *,
-            profiles (
-              full_name
-            )
-          `)
-          .eq('status', 'approved')
-          .order('created_at', { ascending: false });
-
-        if (error) {
-          console.log('Supabase not connected, using sample data');
-          setReports(sampleReports);
-        } else {
-          // Transform Supabase data to match expected format
-          const transformedData = data.map(report => ({
-            id: report.id,
-            title: `${report.course_name} - ${report.category}`,
-            author: report.profiles?.full_name?.split(' ')[0] + ' ' + (report.profiles?.full_name?.split(' ')[1]?.[0] || '') + '.',
-            rating: report.rating,
-            date: report.created_at,
-            instagramHandle: report.instagram_handle,
-            accusedName: report.accused_name,
-            courseName: report.course_name,
-            excerpt: report.description.substring(0, 150) + '...',
-            status: "verified",
-            views: Math.floor(Math.random() * 500) + 50,
-            tags: [report.category],
-            category: report.category,
-            price: report.price || 0,
-            platform: "Instagram",
-          }));
-          setReports(transformedData.length > 0 ? transformedData : sampleReports);
-        }
-      } catch (error) {
-        console.log('Error fetching reports, using sample data:', error);
-        setReports(sampleReports);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchReports();
-  }, []);
+  }, [currentPage, searchTerm, filters, sortOrder]);
+
+  const fetchReports = async () => {
+    setLoading(true);
+    try {
+      // Get total count for pagination
+      const { count } = await supabase
+        .from('reports')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'approved');
+      
+      setTotalReports(count || 0);
+
+      // Fetch reports with pagination
+      const { data, error } = await supabase
+        .from('reports')
+        .select(`
+          *,
+          profiles (
+            full_name
+          )
+        `)
+        .eq('status', 'approved')
+        .order('created_at', { ascending: sortOrder === 'oldest' })
+        .range((currentPage - 1) * reportsPerPage, currentPage * reportsPerPage - 1);
+
+      if (error) {
+        console.error('Error fetching reports:', error);
+        toast({
+          title: "خطأ",
+          description: "حدث خطأ في تحميل التقارير",
+          variant: "destructive",
+        });
+        setReports(sampleReports);
+      } else {
+        // Transform Supabase data to match expected format
+        const transformedData = data?.map(report => ({
+          id: report.id,
+          title: report.course_name,
+          author: report.is_anonymous ? "مجهول" : (report.profiles?.full_name?.split(' ')[0] + ' ' + (report.profiles?.full_name?.split(' ')[1]?.[0] || '') + '.'),
+          rating: report.rating,
+          date: report.created_at,
+          instagramHandle: report.instagram_handle,
+          accusedName: report.accused_name,
+          courseName: report.course_name,
+          excerpt: report.description.substring(0, 150) + '...',
+          status: "verified",
+          views: report.views,
+          tags: ["تقرير مؤكد"],
+          category: "تدريب رقمي",
+          price: 0,
+          platform: "Instagram",
+        })) || [];
+        
+        setReports(transformedData.length > 0 ? transformedData : sampleReports);
+      }
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+      setReports(sampleReports);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFilterChange = (filterName, value) => {
     setFilters((prev) => ({ ...prev, [filterName]: value }));
@@ -413,34 +443,61 @@ export default function Explore() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
           <div className="mb-4 sm:mb-6">
             <p className="text-sm sm:text-base text-muted-foreground">
-              عرض {filteredReports.length} من {reports.length} تقرير
+              عرض {filteredReports.length} من {totalReports} تقرير - الصفحة {currentPage} من {Math.ceil(totalReports / reportsPerPage)}
             </p>
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-              {Array.from({ length: 4 }).map((_, i) => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+              {Array.from({ length: reportsPerPage }).map((_, i) => (
                 <ReportCardSkeleton key={i} />
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
-              {filteredReports.length > 0 ? (
-                filteredReports.map((report) => (
-                  <ReportCard key={report.id} report={report} />
-                ))
-              ) : (
-                <div className="text-center py-12 xl:col-span-2">
-                  <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-foreground mb-2">
-                    لم يتم العثور على تقارير
-                  </h3>
-                  <p className="text-muted-foreground">
-                    جرّب تعديل الفلاتر أو مصطلحات البحث.
-                  </p>
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">
+                {filteredReports.length > 0 ? (
+                  filteredReports.map((report) => (
+                    <ReportCard key={report.id} report={report} />
+                  ))
+                ) : (
+                  <div className="text-center py-12 xl:col-span-3 lg:col-span-2">
+                    <AlertTriangle className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      لم يتم العثور على تقارير
+                    </h3>
+                    <p className="text-muted-foreground">
+                      جرب تعديل معايير البحث أو الفلاتر
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {/* Simple Pagination */}
+              {totalReports > reportsPerPage && (
+                <div className="flex justify-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                  >
+                    <ChevronRight className="w-4 h-4" />
+                    السابق
+                  </Button>
+                  <span className="flex items-center px-4 text-sm text-muted-foreground">
+                    {currentPage} من {Math.ceil(totalReports / reportsPerPage)}
+                  </span>
+                  <Button
+                    variant="outline"
+                    onClick={() => setCurrentPage(Math.min(Math.ceil(totalReports / reportsPerPage), currentPage + 1))}
+                    disabled={currentPage >= Math.ceil(totalReports / reportsPerPage)}
+                  >
+                    التالي
+                    <ChevronLeft className="w-4 h-4" />
+                  </Button>
                 </div>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>
