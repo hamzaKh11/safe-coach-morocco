@@ -49,107 +49,96 @@ const ReportCard = ({ report }) => {
   };
 
   return (
-    <Card className="group hover:shadow-card transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col">
-      <CardHeader className="pb-4">
-        <div className="flex items-start justify-between mb-3">
-          <Badge
-            variant={report.status === "verified" ? "default" : "secondary"}
-            className="flex items-center gap-1"
-          >
-            <Shield className="w-3 h-3" />
-            {report.status === "verified" ? "تقرير موثق" : "قيد المراجعة"}
-          </Badge>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Eye className="w-3 h-3" />
-            {report.views} مشاهدة
-          </div>
+    <Card className="group hover:shadow-soft transition-all duration-300 cursor-pointer flex flex-col border border-border/50 bg-card/80">
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between mb-2">
+          {report.status === "verified" && (
+            <Badge variant="secondary" className="text-xs">
+              <Shield className="w-3 h-3 ml-1" />
+              موثق
+            </Badge>
+          )}
+          {report.views > 0 && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <Eye className="w-3 h-3" />
+              {report.views}
+            </div>
+          )}
         </div>
         
-        <CardTitle className="text-lg line-clamp-2 mb-2">
+        <CardTitle className="text-base line-clamp-2 mb-2 font-medium">
           {report.title}
         </CardTitle>
         
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <User className="w-4 h-4" />
-          <span>بواسطة {report.author}</span>
-          <span>•</span>
-          <Calendar className="w-4 h-4" />
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <span>{timeAgo(report.date)}</span>
         </div>
       </CardHeader>
 
-      <CardContent className="flex-1">
-        <div className="space-y-4">
-          {/* Alert Info */}
-          <div className="bg-muted/50 rounded-lg p-4 border">
-            <div className="space-y-2">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
-                <div className="flex-1">
-                  <div className="font-semibold text-sm mb-1">
-                    المتهم: {report.accusedName}
-                  </div>
-                  <div className="text-muted-foreground text-sm">
-                    الدورة: {report.courseName}
-                  </div>
-                  <a
-                    href={`https://instagram.com/${report.instagramHandle.substring(1)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-primary hover:text-primary/80 text-sm mt-1 transition-colors"
-                  >
-                    <Instagram className="w-3 h-3" />
-                    {report.instagramHandle}
-                    <ExternalLink className="w-3 h-3" />
-                  </a>
-                </div>
-              </div>
+      <CardContent className="flex-1 space-y-3">
+        {/* Main Info */}
+        <div className="space-y-2">
+          {report.accusedName && (
+            <div className="text-sm font-medium text-foreground">
+              {report.accusedName}
             </div>
-          </div>
-
-          {/* Rating */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-muted-foreground">التقييم:</span>
-              <StarRating
-                rating={report.rating}
-                readonly
-                size="sm"
-                showLabel={false}
-              />
-              <span className={`text-sm font-bold ${
-                report.rating <= 2 ? 'text-destructive' : 
-                report.rating <= 3 ? 'text-warning' : 'text-success'
-              }`}>
-                {report.rating}/5
-              </span>
+          )}
+          {report.courseName && (
+            <div className="text-sm text-muted-foreground">
+              {report.courseName}
             </div>
-          </div>
+          )}
+          {report.instagramHandle && (
+            <a
+              href={`https://instagram.com/${report.instagramHandle.substring(1)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-primary hover:text-primary/80 text-sm transition-colors"
+            >
+              <Instagram className="w-3 h-3" />
+              {report.instagramHandle}
+            </a>
+          )}
+        </div>
 
-          {/* Description */}
-          <CardDescription className="line-clamp-3 text-sm leading-relaxed">
+        {/* Rating */}
+        {report.rating > 0 && (
+          <div className="flex items-center gap-2">
+            <StarRating
+              rating={report.rating}
+              readonly
+              size="sm"
+              showLabel={false}
+            />
+          </div>
+        )}
+
+        {/* Description */}
+        {report.excerpt && (
+          <CardDescription className="line-clamp-2 text-sm leading-relaxed">
             {report.excerpt}
           </CardDescription>
+        )}
 
-          {/* Tags */}
-          <div className="flex flex-wrap gap-2">
-            {report.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs">
+        {/* Tags */}
+        {report.tags && report.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {report.tags.slice(0, 3).map((tag, index) => (
+              <Badge key={index} variant="outline" className="text-xs px-2 py-0.5 bg-muted/30">
                 {tag}
               </Badge>
             ))}
           </div>
-        </div>
+        )}
       </CardContent>
       
-      <CardFooter className="pt-4">
+      <CardFooter className="pt-2">
         <Button 
-          className="w-full" 
-          variant="default"
-          size="lg"
+          className="w-full text-sm" 
+          variant="ghost"
+          size="sm"
         >
-          <MessageSquare className="w-4 h-4 ml-2" />
-          اقرأ التقرير كاملاً
+          عرض التفاصيل
         </Button>
       </CardFooter>
     </Card>
