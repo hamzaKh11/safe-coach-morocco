@@ -23,35 +23,49 @@ export const useAuth = () => {
   }, [])
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          full_name: fullName,
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            full_name: fullName,
+          }
+        }
+      })
+
+      if (error) {
+        return { data, error }
+      }
+
+      // If signup successful and user is created, create profile
+      if (data.user) {
+        // Wait a moment for the auth trigger to complete
+        await new Promise(resolve => setTimeout(resolve, 100))
+        
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert([
+            {
+              id: data.user.id,
+              full_name: fullName,
+              role: 'user'
+            }
+          ], {
+            onConflict: 'id'
+          })
+        
+        if (profileError) {
+          console.error('Error creating profile:', profileError)
+          // Don't return profile error as auth was successful
         }
       }
-    })
 
-    // If signup successful, create profile
-    if (data.user && !error) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .insert([
-          {
-            id: data.user.id,
-            full_name: fullName,
-            role: 'user'
-          }
-        ])
-      
-      if (profileError) {
-        console.error('Error creating profile:', profileError)
-        return { data, error: profileError }
-      }
+      return { data, error }
+    } catch (err) {
+      console.error('Signup error:', err)
+      return { data: null, error: err as Error }
     }
-
-    return { data, error }
   }
 
   const signIn = async (email: string, password: string) => {

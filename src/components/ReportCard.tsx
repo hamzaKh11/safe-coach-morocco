@@ -49,58 +49,54 @@ const ReportCard = ({ report }) => {
   };
 
   return (
-    <Card className="group hover:shadow-xl transition-all duration-500 hover:scale-[1.02] cursor-pointer flex flex-col bg-gradient-to-b from-background to-muted/20 border-0 shadow-lg">
-      {/* Header with gradient background */}
-      <div className="bg-gradient-hero p-4 rounded-t-lg relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10"></div>
-        <div className="relative">
-          <div className="flex items-start justify-between mb-3">
-            <Badge
-              variant="secondary"
-              className="bg-white/20 text-white border-white/30 backdrop-blur-sm"
-            >
-              <Shield className="w-3 h-3 ml-1" />
-              {report.status === "verified" ? "تقرير موثق" : "قيد المراجعة"}
-            </Badge>
-            <div className="flex items-center gap-1 text-white/80 text-xs bg-white/10 px-2 py-1 rounded-full">
-              <Eye className="w-3 h-3" />
-              {report.views} مشاهدة
-            </div>
-          </div>
-          
-          <CardTitle className="text-white text-xl line-clamp-2 mb-2 font-bold">
-            {report.title}
-          </CardTitle>
-          
-          <div className="flex items-center gap-2 text-white/80 text-sm">
-            <User className="w-4 h-4" />
-            <span>بواسطة {report.author}</span>
-            <span>•</span>
-            <Calendar className="w-4 h-4" />
-            <span>{timeAgo(report.date)}</span>
+    <Card className="group hover:shadow-card transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col">
+      <CardHeader className="pb-4">
+        <div className="flex items-start justify-between mb-3">
+          <Badge
+            variant={report.status === "verified" ? "default" : "secondary"}
+            className="flex items-center gap-1"
+          >
+            <Shield className="w-3 h-3" />
+            {report.status === "verified" ? "تقرير موثق" : "قيد المراجعة"}
+          </Badge>
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Eye className="w-3 h-3" />
+            {report.views} مشاهدة
           </div>
         </div>
-      </div>
+        
+        <CardTitle className="text-lg line-clamp-2 mb-2">
+          {report.title}
+        </CardTitle>
+        
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <User className="w-4 h-4" />
+          <span>بواسطة {report.author}</span>
+          <span>•</span>
+          <Calendar className="w-4 h-4" />
+          <span>{timeAgo(report.date)}</span>
+        </div>
+      </CardHeader>
 
-      <CardContent className="flex-1 p-6">
+      <CardContent className="flex-1">
         <div className="space-y-4">
           {/* Alert Info */}
-          <div className="bg-gradient-to-r from-red-50 to-orange-50 dark:from-red-950/30 dark:to-orange-950/30 rounded-lg p-4 border border-red-200/50 dark:border-red-800/50">
+          <div className="bg-muted/50 rounded-lg p-4 border">
             <div className="space-y-2">
               <div className="flex items-start gap-2">
-                <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
+                <AlertTriangle className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
                 <div className="flex-1">
-                  <div className="font-semibold text-red-800 dark:text-red-300 text-sm mb-1">
+                  <div className="font-semibold text-sm mb-1">
                     المتهم: {report.accusedName}
                   </div>
-                  <div className="text-red-700 dark:text-red-400 text-sm">
+                  <div className="text-muted-foreground text-sm">
                     الدورة: {report.courseName}
                   </div>
                   <a
                     href={`https://instagram.com/${report.instagramHandle.substring(1)}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-200 text-sm mt-1 transition-colors"
+                    className="inline-flex items-center gap-1 text-primary hover:text-primary/80 text-sm mt-1 transition-colors"
                   >
                     <Instagram className="w-3 h-3" />
                     {report.instagramHandle}
@@ -122,27 +118,23 @@ const ReportCard = ({ report }) => {
                 showLabel={false}
               />
               <span className={`text-sm font-bold ${
-                report.rating <= 2 ? 'text-red-600' : 
-                report.rating <= 3 ? 'text-yellow-600' : 'text-green-600'
+                report.rating <= 2 ? 'text-destructive' : 
+                report.rating <= 3 ? 'text-warning' : 'text-success'
               }`}>
                 {report.rating}/5
               </span>
             </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <MessageSquare className="w-3 h-3" />
-              تقرير مفصل
-            </div>
           </div>
 
           {/* Description */}
-          <CardDescription className="line-clamp-3 text-base leading-relaxed">
+          <CardDescription className="line-clamp-3 text-sm leading-relaxed">
             {report.excerpt}
           </CardDescription>
 
           {/* Tags */}
           <div className="flex flex-wrap gap-2">
             {report.tags.map((tag, index) => (
-              <Badge key={index} variant="outline" className="text-xs bg-muted/50 hover:bg-muted transition-colors">
+              <Badge key={index} variant="outline" className="text-xs">
                 {tag}
               </Badge>
             ))}
@@ -150,9 +142,10 @@ const ReportCard = ({ report }) => {
         </div>
       </CardContent>
       
-      <CardFooter className="p-6 pt-0">
+      <CardFooter className="pt-4">
         <Button 
-          className="w-full bg-gradient-hero hover:shadow-lg transition-all duration-300 group-hover:scale-[1.02]" 
+          className="w-full" 
+          variant="default"
           size="lg"
         >
           <MessageSquare className="w-4 h-4 ml-2" />
