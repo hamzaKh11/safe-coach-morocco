@@ -42,58 +42,42 @@ const ReportCard = ({ report }) => {
     return `منذ ${Math.floor(seconds)} ثوان`;
   };
 
-  const platformIcon = {
-    Instagram: <Instagram className="w-4 h-4 text-pink-500" />,
-    WhatsApp: <AppWindow className="w-4 h-4 text-green-500" />,
-    "الموقع الإلكتروني": <AppWindow className="w-4 h-4 text-blue-500" />,
-  };
-
   return (
-    <Card className="group hover:shadow-elegant transition-all duration-500 hover:scale-[1.02] cursor-pointer flex flex-col overflow-hidden bg-gradient-to-br from-card via-card/95 to-muted/20 border-0 shadow-soft">
-      {/* Header with subtle gradient */}
-      <div className="relative p-6 pb-4 bg-gradient-to-r from-primary/5 via-accent/5 to-primary/5">
-        <div className="absolute inset-0 bg-gradient-to-br from-background/60 to-transparent"></div>
-        <div className="relative">
-          <div className="flex items-start justify-between mb-4">
-            {report.status === "verified" && (
-              <Badge className="bg-success/10 text-success border-success/20 hover:bg-success/15">
-                <Shield className="w-3 h-3 ml-1" />
-                موثق
-              </Badge>
-            )}
-            {report.views > 0 && (
-              <div className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/30 px-2 py-1 rounded-full backdrop-blur-sm">
-                <Eye className="w-3 h-3" />
-                {report.views}
-              </div>
-            )}
-          </div>
-          
-          <CardTitle className="text-lg line-clamp-2 mb-3 font-semibold text-foreground/90 leading-relaxed">
-            {report.title}
-          </CardTitle>
-          
-          <div className="flex items-center gap-2 text-xs text-muted-foreground/80">
+    <Card className="group hover:shadow-soft transition-all duration-300 hover:scale-[1.01] cursor-pointer flex flex-col overflow-hidden bg-card border border-border/60 hover:border-border">
+      {/* Clean Header */}
+      <div className="p-6 pb-4 bg-gradient-to-r from-background to-muted/20">
+        <div className="flex items-start justify-between mb-3">
+          {report.status === "verified" && (
+            <Badge variant="outline" className="bg-success/5 text-success border-success/30 text-xs">
+              <Shield className="w-3 h-3 ml-1" />
+              موثق
+            </Badge>
+          )}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Calendar className="w-3 h-3" />
             <span>{timeAgo(report.date)}</span>
           </div>
         </div>
+        
+        <CardTitle className="text-lg line-clamp-2 font-semibold text-foreground leading-relaxed">
+          {report.title}
+        </CardTitle>
       </div>
 
-      <CardContent className="flex-1 p-6 pt-4 space-y-4">
-        {/* Main Info with enhanced styling */}
-        <div className="space-y-3 p-4 rounded-xl bg-gradient-to-r from-muted/30 via-muted/20 to-muted/30 border border-border/30">
+      <CardContent className="flex-1 p-6 pt-2 space-y-4">
+        {/* Clean Info Section */}
+        <div className="space-y-3 p-4 rounded-lg bg-muted/30 border border-border/40">
           {report.accusedName && (
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-primary/60"></div>
-              <span className="text-sm font-medium text-foreground/90">
+            <div className="flex items-center gap-3">
+              <User className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">
                 {report.accusedName}
               </span>
             </div>
           )}
           {report.courseName && (
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 rounded-full bg-accent/60"></div>
+            <div className="flex items-center gap-3">
+              <BookCopy className="w-4 h-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">
                 {report.courseName}
               </span>
@@ -104,7 +88,7 @@ const ReportCard = ({ report }) => {
               href={`https://instagram.com/${report.instagramHandle.substring(1)}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-primary hover:text-primary/80 text-sm transition-all duration-300 hover:translate-x-1"
+              className="inline-flex items-center gap-3 text-primary hover:text-primary/80 text-sm transition-colors duration-200"
             >
               <Instagram className="w-4 h-4" />
               <span className="font-medium">{report.instagramHandle}</span>
@@ -113,49 +97,57 @@ const ReportCard = ({ report }) => {
           )}
         </div>
 
-        {/* Rating with enhanced design */}
+        {/* Clean Rating Display */}
         {report.rating > 0 && (
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-gradient-to-r from-accent/10 to-primary/10 border border-accent/20">
+          <div className="flex items-center gap-3 p-3 rounded-lg bg-background border border-border/30">
             <StarRating
               rating={report.rating}
               readonly
               size="sm"
               showLabel={false}
             />
-            <span className="text-xs font-medium text-muted-foreground bg-background/50 px-2 py-1 rounded-full">
+            <span className="text-xs text-muted-foreground">
               تقييم
             </span>
           </div>
         )}
 
-        {/* Description with better styling */}
+        {/* Clean Description */}
         {report.excerpt && (
-          <div className="p-4 rounded-lg bg-gradient-to-br from-background/80 to-muted/30 border-l-4 border-l-primary/30">
-            <CardDescription className="line-clamp-2 text-sm leading-relaxed text-foreground/70">
+          <div className="p-4 rounded-lg bg-background border border-border/30">
+            <CardDescription className="line-clamp-3 text-sm leading-relaxed text-muted-foreground">
               {report.excerpt}
             </CardDescription>
           </div>
         )}
 
-        {/* Tags with enhanced design */}
+        {/* Clean Tags */}
         {report.tags && report.tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {report.tags.slice(0, 3).map((tag, index) => (
               <Badge 
                 key={index} 
                 variant="outline" 
-                className="text-xs px-3 py-1 bg-gradient-to-r from-muted/40 to-muted/60 border-border/50 hover:from-primary/10 hover:to-accent/10 hover:border-primary/30 transition-all duration-300"
+                className="text-xs px-3 py-1 bg-muted/30 border-border/50 text-muted-foreground hover:bg-muted/50 transition-colors duration-200"
               >
                 {tag}
               </Badge>
             ))}
           </div>
         )}
+
+        {/* Views Counter */}
+        {report.views > 0 && (
+          <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+            <Eye className="w-3 h-3" />
+            <span>{report.views} مشاهدة</span>
+          </div>
+        )}
       </CardContent>
       
       <CardFooter className="p-6 pt-2">
         <Button 
-          className="w-full group-hover:shadow-soft transition-all duration-300 bg-gradient-to-r from-primary/90 to-accent/90 hover:from-primary hover:to-accent border-0" 
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors duration-200" 
           size="lg"
         >
           <MessageSquare className="w-4 h-4 ml-2" />

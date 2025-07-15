@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Navigation from "@/components/Navigation";
 import Footer from "@/components/Footer";
 import { ReportCard, ReportCardSkeleton } from "@/components/ReportCard";
+import LoadingAnimation from "@/components/LoadingAnimation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -448,11 +449,7 @@ export default function Explore() {
           </div>
 
           {loading ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-              {Array.from({ length: reportsPerPage }).map((_, i) => (
-                <ReportCardSkeleton key={i} />
-              ))}
-            </div>
+            <LoadingAnimation />
           ) : (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">

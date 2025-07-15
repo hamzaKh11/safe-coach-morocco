@@ -22,7 +22,7 @@ export const useAuth = () => {
     return () => subscription.unsubscribe()
   }, [])
 
-  const signUp = async (email: string, password: string, fullName: string) => {
+  const signUp = async (email: string, password: string, fullName: string, role: 'user' | 'admin' = 'user') => {
     try {
       const { data, error } = await supabase.auth.signUp({
         email,
@@ -30,6 +30,7 @@ export const useAuth = () => {
         options: {
           data: {
             full_name: fullName,
+            role: role
           }
         }
       })
@@ -49,7 +50,7 @@ export const useAuth = () => {
             {
               id: data.user.id,
               full_name: fullName,
-              role: 'user'
+              role: role
             }
           ], {
             onConflict: 'id'
@@ -65,6 +66,32 @@ export const useAuth = () => {
     } catch (err) {
       console.error('Signup error:', err)
       return { data: null, error: err as Error }
+    }
+  }
+
+  const signUpAdmin = async (email: string, password: string, fullName: string) => {
+    return signUp(email, password, fullName, 'admin')
+  }
+
+  const checkUserRole = async () => {
+    if (!user) return null
+    
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single()
+      
+      if (error) {
+        console.error('Error checking user role:', error)
+        return null
+      }
+      
+      return data?.role || 'user'
+    } catch (err) {
+      console.error('Error checking user role:', err)
+      return null
     }
   }
 
@@ -85,7 +112,9 @@ export const useAuth = () => {
     user,
     loading,
     signUp,
+    signUpAdmin,
     signIn,
     signOut,
+    checkUserRole,
   }
 }
